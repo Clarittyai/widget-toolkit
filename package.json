@@ -1,0 +1,50 @@
+{
+  "name": "@clarittyai/widget-toolkit",
+  "version": "1.0.0",
+  "description": "Apple-compliant widget toolkit for Clarity Platform - enforces iOS Human Interface Guidelines",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "validate": "node dist/validation/cli.js",
+    "prepublishOnly": "npm run build"
+  },
+  "keywords": [
+    "widgets",
+    "ios",
+    "apple",
+    "components",
+    "hig",
+    "human-interface-guidelines",
+    "react",
+    "typescript"
+  ],
+  "author": "Clarity Platform",
+  "license": "MIT",
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Clarittyai/widget-toolkit.git"
+  },
+  "peerDependencies": {
+    "react": "^18.0.0 || ^19.0.0",
+    "framer-motion": "^10.0.0 || ^11.0.0"
+  },
+  "devDependencies": {
+    "@types/react": "^18.2.0",
+    "typescript": "^5.3.0",
+    "react": "^18.2.0",
+    "framer-motion": "^11.0.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
