@@ -22,6 +22,13 @@ export type WidgetButtonVariant = 'primary' | 'secondary' | 'ghost';
 export type WidgetButtonSize = 'default' | 'large';
 
 /**
+ * Button shape variants
+ * - rounded: Standard rounded rectangle button (default)
+ * - circular: Round icon-only button (perfect circle)
+ */
+export type WidgetButtonShape = 'rounded' | 'circular';
+
+/**
  * Widget dimensions enforced by the toolkit
  */
 export interface WidgetDimensions {

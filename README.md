@@ -1,4 +1,4 @@
-# @claritty/widget-toolkit
+# @clarittyai/widget-toolkit
 
 **Apple-compliant widget toolkit for Clarity Platform** - Enforces iOS Human Interface Guidelines automatically.
 
@@ -8,13 +8,29 @@ This package provides React components and utilities that enforce Apple's design
 
 ## 📦 Installation
 
+### 1. Configure GitHub Packages (One-Time Setup)
+
+Create a GitHub Personal Access Token with `read:packages` permission:
+1. Go to https://github.com/settings/tokens
+2. Generate new token (classic)
+3. Select `read:packages` scope
+4. Copy the token
+
+Add to `~/.npmrc`:
 ```bash
-npm install @claritty/widget-toolkit
+@clarittyai:registry=https://npm.pkg.github.com
+//npm.pkg.github.com/:_authToken=YOUR_GITHUB_TOKEN
+```
+
+### 2. Install Package
+
+```bash
+npm install @clarittyai/widget-toolkit
 ```
 
 **Peer Dependencies:**
 ```bash
-npm install react framer-motion
+npm install react framer-motion tailwindcss
 ```
 
 ## 🚀 Quick Start
@@ -25,7 +41,7 @@ import {
   WidgetButton,
   widgetText,
   widgetGradients
-} from '@claritty/widget-toolkit';
+} from '@clarittyai/widget-toolkit';
 
 export default function MyWidget({ size = 'large' }: { size: 'small' | 'large' }) {
   return (
@@ -102,7 +118,7 @@ Enforces touch target sizes and Apple-style styling.
 ### widgetText
 Typography scale matching Apple SF Pro:
 ```tsx
-import { widgetText } from '@claritty/widget-toolkit';
+import { widgetText } from '@clarittyai/widget-toolkit';
 
 <div className={widgetText.display}>42</div>      // 48px, weight 900
 <div className={widgetText.headline}>Title</div>  // 20px, weight 700
@@ -112,7 +128,7 @@ import { widgetText } from '@claritty/widget-toolkit';
 ### widgetSpacing
 Spacing utilities following 8pt grid:
 ```tsx
-import { widgetSpacing } from '@claritty/widget-toolkit';
+import { widgetSpacing } from '@clarittyai/widget-toolkit';
 
 <div className={widgetSpacing.padding.default}>   // p-4 (16px)
 <div className={widgetSpacing.gap.normal}>        // gap-3 (12px)
@@ -121,7 +137,7 @@ import { widgetSpacing } from '@claritty/widget-toolkit';
 ### widgetGradients
 Apple-style gradient presets:
 ```tsx
-import { widgetGradients } from '@claritty/widget-toolkit';
+import { widgetGradients } from '@clarittyai/widget-toolkit';
 
 <div className={widgetGradients.sunset}>    // Amber/Orange gradient
 <div className={widgetGradients.ocean}>     // Blue/Cyan gradient
@@ -133,7 +149,7 @@ import { widgetGradients } from '@claritty/widget-toolkit';
 Validate your widgets against Apple HIG:
 
 ```bash
-npx @claritty/widget-toolkit validate widget/Widget.tsx
+npx @clarittyai/widget-toolkit validate widget/Widget.tsx
 ```
 
 **Checks:**

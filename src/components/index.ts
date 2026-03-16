@@ -9,3 +9,6 @@ export type { WidgetBadgeProps } from './WidgetBadge';
 
 export { WidgetAvatar, WidgetAvatarGroup } from './WidgetAvatar';
 export type { WidgetAvatarProps, WidgetAvatarGroupProps } from './WidgetAvatar';
+
+export { WidgetToggle } from './WidgetToggle';
+export type { WidgetToggleProps } from './WidgetToggle';

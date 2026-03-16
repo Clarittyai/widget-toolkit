@@ -1,5 +1,5 @@
 import React from 'react';
-import type { WidgetButtonVariant, WidgetButtonSize } from '../types';
+import type { WidgetButtonVariant, WidgetButtonSize, WidgetButtonShape } from '../types';
 
 export interface WidgetButtonProps {
   /**
@@ -18,9 +18,16 @@ export interface WidgetButtonProps {
   size?: WidgetButtonSize;
 
   /**
-   * Button content
+   * Button shape
+   * - rounded: Standard rounded rectangle (default)
+   * - circular: Round icon-only button (perfect circle)
    */
-  children: React.ReactNode;
+  shape?: WidgetButtonShape;
+
+  /**
+   * Button content (optional for circular icon-only buttons)
+   */
+  children?: React.ReactNode;
 
   /**
    * Click handler (deep link, action trigger, etc.)
@@ -28,7 +35,7 @@ export interface WidgetButtonProps {
   onClick?: () => void;
 
   /**
-   * Optional icon element (rendered before text)
+   * Optional icon element (rendered before text, required for circular buttons)
    */
   icon?: React.ReactNode;
 
@@ -41,6 +48,12 @@ export interface WidgetButtonProps {
    * Disabled state
    */
   disabled?: boolean;
+
+  /**
+   * Whether to prevent opening the app when clicked
+   * Default: true (prevents app opening for internal interaction)
+   */
+  preventAppOpen?: boolean;
 }
 
 /**
@@ -51,25 +64,37 @@ export interface WidgetButtonProps {
  * ✅ Apple-style glassmorphism design
  * ✅ Proper padding and spacing
  * ✅ Smooth transitions
+ * ✅ Support for circular icon-only buttons
  *
  * @example
  * ```tsx
+ * // Standard button with text
  * <WidgetButton variant="primary" icon={<PlayIcon />} onClick={handleAction}>
  *   View Details
  * </WidgetButton>
+ *
+ * // Circular icon-only button
+ * <WidgetButton variant="primary" shape="circular" icon={<RefreshIcon />} onClick={handleRefresh} />
  * ```
  */
 export function WidgetButton({
   variant = 'primary',
   size = 'default',
+  shape = 'rounded',
   children,
   onClick,
   icon,
   className = '',
   disabled = false,
+  preventAppOpen = true,
 }: WidgetButtonProps) {
+  const isCircular = shape === 'circular';
+
+  // Shape classes - rounded rectangle vs perfect circle
+  const shapeClasses = isCircular ? 'rounded-full' : 'rounded-lg';
+
   // Base classes enforce 44px minimum touch target (Apple HIG requirement)
-  const baseClasses = 'min-h-[44px] min-w-[44px] rounded-lg font-medium transition-all duration-200 flex items-center justify-center gap-1.5';
+  const baseClasses = `min-h-[44px] min-w-[44px] ${shapeClasses} font-medium transition-all duration-200 flex items-center justify-center gap-1.5`;
 
   // Variant styling - Apple-style glassmorphism
   const variantClasses: Record<WidgetButtonVariant, string> = {
@@ -78,31 +103,64 @@ export function WidgetButton({
     ghost: 'hover:bg-white/10 text-white',
   };
 
-  // Size variants (both respect 44px minimum)
-  const sizeClasses: Record<WidgetButtonSize, string> = {
+  // Circular buttons: fixed square dimensions for perfect circle
+  const circularSizeClasses: Record<WidgetButtonSize, string> = {
+    default: 'w-[44px] h-[44px]',  // Perfect 44×44px square (circle)
+    large: 'w-[56px] h-[56px]',    // Larger 56×56px square (circle)
+  };
+
+  // Standard buttons: flexible width with padding
+  const standardSizeClasses: Record<WidgetButtonSize, string> = {
     default: 'px-4 py-2 text-xs',  // Compact but still 44px height
     large: 'px-6 py-3 text-sm',    // More prominent
   };
+
+  const sizeClasses = isCircular
+    ? circularSizeClasses[size]
+    : standardSizeClasses[size];
 
   // Disabled state
   const disabledClasses = disabled
     ? 'opacity-50 cursor-not-allowed pointer-events-none'
     : 'active:scale-95 cursor-pointer';
 
+  const handleClick = (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.stopPropagation(); // Prevent parent click handlers
+
+    // Send INTERNAL_INTERACTION message to parent iframe host
+    if (preventAppOpen && typeof window !== 'undefined') {
+      try {
+        window.parent.postMessage({
+          type: 'INTERNAL_INTERACTION',
+          timestamp: Date.now(),
+          component: 'WidgetButton',
+        }, '*');
+      } catch (error) {
+        // Silently fail if not in iframe or postMessage fails
+        console.debug('WidgetButton: Could not send INTERNAL_INTERACTION message', error);
+      }
+    }
+
+    // Call user's onClick handler
+    if (onClick) {
+      onClick();
+    }
+  };
+
   return (
     <button
-      onClick={onClick}
+      onClick={handleClick}
       disabled={disabled}
       className={`
         ${baseClasses}
         ${variantClasses[variant]}
-        ${sizeClasses[size]}
+        ${sizeClasses}
         ${disabledClasses}
         ${className}
       `.trim().replace(/\s+/g, ' ')}
     >
       {icon && <span className="flex-shrink-0">{icon}</span>}
-      {children}
+      {!isCircular && children}
     </button>
   );
 }
