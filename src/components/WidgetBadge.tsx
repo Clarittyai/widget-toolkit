@@ -39,12 +39,13 @@ export function WidgetBadge({
   className = '',
   showDot = false,
 }: WidgetBadgeProps) {
+  // Frosted tint chips — translucent + subtle blur so they sit on glass.
   const variantClasses: Record<string, string> = {
-    success: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/50 dark:text-emerald-300',
-    warning: 'bg-amber-100 text-amber-700 dark:bg-amber-900/50 dark:text-amber-300',
-    error: 'bg-red-100 text-red-700 dark:bg-red-900/50 dark:text-red-300',
-    info: 'bg-blue-100 text-blue-700 dark:bg-blue-900/50 dark:text-blue-300',
-    neutral: 'bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300',
+    success: 'bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 backdrop-blur-sm',
+    warning: 'bg-amber-500/15 text-amber-700 dark:text-amber-300 backdrop-blur-sm',
+    error: 'bg-red-500/15 text-red-700 dark:text-red-300 backdrop-blur-sm',
+    info: 'bg-blue-500/15 text-blue-700 dark:text-blue-300 backdrop-blur-sm',
+    neutral: 'bg-gray-500/15 text-gray-700 dark:text-gray-300 backdrop-blur-sm',
   };
 
   const dotColors: Record<string, string> = {

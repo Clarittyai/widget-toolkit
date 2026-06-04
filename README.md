@@ -33,6 +33,30 @@ npm install @clarittyai/widget-toolkit
 npm install react framer-motion tailwindcss
 ```
 
+### 3. Tailwind content (required)
+
+The components ship with Tailwind class names (including the new **liquid-glass**
+surface: `backdrop-blur-2xl`, `backdrop-saturate-150`, inset `ring`, translucent
+backgrounds). Tailwind only generates classes it can see, so add the package's
+compiled output to your `tailwind.config.js` `content` — otherwise the glass
+styling is purged from your build:
+
+```js
+// tailwind.config.js
+export default {
+  content: [
+    "./index.html",
+    "./src/**/*.{js,ts,jsx,tsx}",
+    "./node_modules/@clarittyai/widget-toolkit/dist/**/*.js", // ← add this
+  ],
+  darkMode: "class",
+  // ...
+};
+```
+
+The glass surface reads on both light and dark; toggle it via the `dark` class
+on `<html>` (Claritty apps inherit this from the platform).
+
 ## 🚀 Quick Start
 
 ```tsx
@@ -67,9 +91,10 @@ export default function MyWidget({ size = 'large' }: { size: 'small' | 'large' }
 
 ## 📐 Enforced Standards
 
-### Dimensions (Apple iOS Widget Sizes)
-- **Small**: `190×190px` (1:1 ratio - iOS systemSmall)
-- **Large**: `400×190px` (2.1:1 ratio - iOS systemLarge)
+### Dimensions (Apple HIG, 3 sizes)
+- **Small**: `170×170px` (1:1 — iOS systemSmall)
+- **Medium**: `360×170px` (2.1:1 — iOS systemMedium)
+- **Large**: `360×360px` (iOS systemLarge)
 
 ### Spacing (Apple 8pt Grid)
 - **Padding**: 16px default (Apple's standard widget margin)
@@ -153,7 +178,7 @@ npx @clarittyai/widget-toolkit validate widget/Widget.tsx
 ```
 
 **Checks:**
-- ✅ Dimensions are exact (190×190 or 400×190)
+- ✅ Dimensions are exact (170×170, 360×170, or 360×360)
 - ✅ Padding ≥ 12px
 - ✅ Font sizes ≥ 12px
 - ✅ Touch targets ≥ 44px

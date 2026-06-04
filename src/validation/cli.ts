@@ -34,11 +34,11 @@ Examples:
   widget-toolkit validate src/MyWidget.tsx
 
 What's Validated:
-  ✅ Dimensions (190×190px or 400×190px)
+  ✅ Dimensions (170×170, 360×170, or 360×360 px — Apple HIG)
   ✅ Padding (minimum 12px)
   ✅ Font sizes (minimum 12px)
   ✅ Touch targets (minimum 44×44px)
-  ✅ Border radius (22px)
+  ✅ Border radius (24px / rounded-3xl)
   ✅ Visual standards (shadows, overflow)
 
 For more info:

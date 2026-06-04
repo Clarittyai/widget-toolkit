@@ -42,6 +42,21 @@ export function openApp(appId: string): void {
 }
 
 /**
+ * Navigate to specific page within app (deep link)
+ * @param path Relative path within app (e.g., "/settings", "/meetings/123")
+ */
+export function navigateToDeepLink(path: string): void {
+  window.parent.postMessage(
+    {
+      type: 'DEEP_LINK',
+      path,
+      timestamp: Date.now(),
+    },
+    '*'
+  );
+}
+
+/**
  * Request data refresh
  */
 export function refreshWidget(): void {

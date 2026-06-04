@@ -52,8 +52,17 @@ export interface WidgetButtonProps {
   /**
    * Whether to prevent opening the app when clicked
    * Default: true (prevents app opening for internal interaction)
+   * Note: Ignored if deepLink is provided
    */
   preventAppOpen?: boolean;
+
+  /**
+   * Deep link path to open within the app (e.g., "/settings", "/meetings/123")
+   * When provided, clicking opens the app at this specific page
+   * When NOT provided, clicking prevents app opening (internal interaction)
+   * Path is relative to app - do NOT include /apps/${appId} prefix
+   */
+  deepLink?: string;
 }
 
 /**
@@ -87,6 +96,7 @@ export function WidgetButton({
   className = '',
   disabled = false,
   preventAppOpen = true,
+  deepLink,
 }: WidgetButtonProps) {
   const isCircular = shape === 'circular';
 
@@ -96,11 +106,16 @@ export function WidgetButton({
   // Base classes enforce 44px minimum touch target (Apple HIG requirement)
   const baseClasses = `min-h-[44px] min-w-[44px] ${shapeClasses} font-medium transition-all duration-200 flex items-center justify-center gap-1.5`;
 
-  // Variant styling - Apple-style glassmorphism
+  // Variant styling — sits on the liquid-glass WidgetContainer, so buttons must
+  // stay legible on a light translucent surface (the old white/25 glass button
+  // was invisible there). Primary = the Claritty accent; secondary = a frosted
+  // chip; ghost = subtle. These use the app's theme tokens (accent/foreground/
+  // muted) — Claritty apps define them and scan the kit's dist in Tailwind.
   const variantClasses: Record<WidgetButtonVariant, string> = {
-    primary: 'bg-white/25 hover:bg-white/35 backdrop-blur-sm border border-white/40 text-white shadow-sm',
-    secondary: 'bg-black/10 hover:bg-black/20 text-foreground border border-black/20',
-    ghost: 'hover:bg-white/10 text-white',
+    primary: 'bg-accent text-white hover:bg-accent/90 shadow-sm',
+    secondary:
+      'bg-white/60 dark:bg-white/[0.08] text-foreground ring-1 ring-inset ring-slate-900/[0.08] dark:ring-white/[0.12] backdrop-blur-md hover:bg-white/80 dark:hover:bg-white/[0.12]',
+    ghost: 'text-foreground hover:bg-slate-900/5 dark:hover:bg-white/10',
   };
 
   // Circular buttons: fixed square dimensions for perfect circle
@@ -126,24 +141,37 @@ export function WidgetButton({
 
   const handleClick = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.stopPropagation(); // Prevent parent click handlers
+    e.preventDefault(); // Prevent default browser behavior
 
-    // Send INTERNAL_INTERACTION message to parent iframe host
-    if (preventAppOpen && typeof window !== 'undefined') {
+    if (typeof window !== 'undefined') {
       try {
-        window.parent.postMessage({
-          type: 'INTERNAL_INTERACTION',
-          timestamp: Date.now(),
-          component: 'WidgetButton',
-        }, '*');
+        // If deep link provided, send DEEP_LINK message (opens app at specific page)
+        if (deepLink) {
+          window.parent.postMessage({
+            type: 'DEEP_LINK',
+            path: deepLink,
+            timestamp: Date.now(),
+          }, '*');
+        }
+        // Otherwise send INTERNAL_INTERACTION message (prevents app opening)
+        else if (preventAppOpen) {
+          window.parent.postMessage({
+            type: 'INTERNAL_INTERACTION',
+            timestamp: Date.now(),
+            component: 'WidgetButton',
+          }, '*');
+        }
       } catch (error) {
         // Silently fail if not in iframe or postMessage fails
-        console.debug('WidgetButton: Could not send INTERNAL_INTERACTION message', error);
+        console.debug('WidgetButton: Could not send postMessage', error);
       }
     }
 
-    // Call user's onClick handler
+    // Call user's onClick handler after a brief delay to ensure message is processed
     if (onClick) {
-      onClick();
+      setTimeout(() => {
+        onClick();
+      }, 50); // 50ms delay to ensure postMessage completes
     }
   };
 

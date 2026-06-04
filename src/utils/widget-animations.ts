@@ -40,39 +40,39 @@ export const scaleIn: Variants = {
 };
 
 /**
- * Slide in from bottom (sheet-like entrance)
+ * Slide in from bottom (sheet-like entrance) - updated to fade only
  */
 export const slideInFromBottom: Variants = {
-  initial: { opacity: 0, y: 20 },
-  animate: { opacity: 1, y: 0 },
-  exit: { opacity: 0, y: 20 },
+  initial: { opacity: 0 },
+  animate: { opacity: 1 },
+  exit: { opacity: 0 },
 };
 
 /**
- * Slide in from top
+ * Slide in from top - updated to fade only
  */
 export const slideInFromTop: Variants = {
-  initial: { opacity: 0, y: -20 },
-  animate: { opacity: 1, y: 0 },
-  exit: { opacity: 0, y: -20 },
+  initial: { opacity: 0 },
+  animate: { opacity: 1 },
+  exit: { opacity: 0 },
 };
 
 /**
- * Slide in from right
+ * Slide in from right - updated to fade only
  */
 export const slideInFromRight: Variants = {
-  initial: { opacity: 0, x: 20 },
-  animate: { opacity: 1, x: 0 },
-  exit: { opacity: 0, x: 20 },
+  initial: { opacity: 0 },
+  animate: { opacity: 1 },
+  exit: { opacity: 0 },
 };
 
 /**
- * Slide in from left
+ * Slide in from left - updated to fade only
  */
 export const slideInFromLeft: Variants = {
-  initial: { opacity: 0, x: -20 },
-  animate: { opacity: 1, x: 0 },
-  exit: { opacity: 0, x: -20 },
+  initial: { opacity: 0 },
+  animate: { opacity: 1 },
+  exit: { opacity: 0 },
 };
 
 /**
@@ -129,11 +129,11 @@ export const staggerContainer: Variants = {
 };
 
 /**
- * Stagger child item
+ * Stagger child item - updated to fade only
  */
 export const staggerItem: Variants = {
-  initial: { opacity: 0, y: 10 },
-  animate: { opacity: 1, y: 0 },
+  initial: { opacity: 0 },
+  animate: { opacity: 1 },
 };
 
 /**

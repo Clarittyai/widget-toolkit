@@ -8,13 +8,15 @@ import type { AppleHIGRules } from '../types';
  */
 export const appleHIGRules: AppleHIGRules = {
   /**
-   * Widget dimensions (strict enforcement)
-   * Small: 190×190px (iOS systemSmall proportion)
-   * Large: 400×190px (iOS systemLarge proportion)
+   * Widget dimensions (strict enforcement) — Apple HIG 3-size standard.
+   * Small:  170×170px (iOS systemSmall — 2×2 icons)
+   * Medium: 360×170px (iOS systemMedium — 4×2 icons)
+   * Large:  360×360px (iOS systemLarge — 4×4 icons; matches the Claritty grid)
    */
   dimensions: {
-    small: { width: 190, height: 190 },
-    large: { width: 400, height: 190 },
+    small: { width: 170, height: 170 },
+    medium: { width: 360, height: 170 },
+    large: { width: 360, height: 360 },
   },
 
   /**
@@ -36,10 +38,9 @@ export const appleHIGRules: AppleHIGRules = {
   minTouchTarget: 44,
 
   /**
-   * Border radius (iOS widget standard)
-   * All widgets use 22px corner radius to match iOS
+   * Border radius — 24px (Tailwind rounded-3xl), matching Claritty's cards.
    */
-  borderRadius: 22,
+  borderRadius: 24,
 
   /**
    * Maximum refresh rate (battery/performance)
@@ -52,10 +53,14 @@ export const appleHIGRules: AppleHIGRules = {
  * Validation error messages
  */
 export const validationMessages = {
-  invalidDimensions: (size: string, actual: { width: number; height: number }) =>
-    `Widget size "${size}" must be exactly ${
-      size === 'small' ? '190×190px' : '400×190px'
-    }, found ${actual.width}×${actual.height}px`,
+  invalidDimensions: (size: string, actual: { width: number; height: number }) => {
+    const expected =
+      size === 'small' ? '170×170px' :
+      size === 'medium' ? '360×170px' :
+      size === 'large' ? '360×360px' :
+      'an Apple HIG widget size';
+    return `Widget size "${size}" must be exactly ${expected}, found ${actual.width}×${actual.height}px`;
+  },
 
   insufficientPadding: (actual: number, min: number) =>
     `Padding must be at least ${min}px for safe area compliance, found ${actual}px`,

@@ -3,9 +3,10 @@ import type { WidgetSize, WidgetPadding, WidgetDimensions } from '../types';
 
 export interface WidgetContainerProps {
   /**
-   * Widget size - enforces Apple iOS widget dimensions
-   * - small: 190×190px (1:1 ratio - iOS systemSmall)
-   * - large: 400×190px (2.1:1 ratio - iOS systemLarge)
+   * Widget size - enforces Apple iOS widget dimensions (3-size standard).
+   * - small:  170×170px (1:1 ratio - iOS systemSmall, 2×2 icons)
+   * - medium: 360×170px (2.1:1 ratio - iOS systemMedium, 4×2 icons)
+   * - large:  360×360px (4×4 icons - iOS systemLarge; matches the Claritty grid)
    */
   size: WidgetSize;
 
@@ -37,15 +38,22 @@ export interface WidgetContainerProps {
  * WidgetContainer - Core enforcing component for Apple-compliant widgets
  *
  * Automatically enforces:
- * ✅ Strict dimensions (190×190px or 400×190px)
- * ✅ Border radius (22px - iOS standard)
+ * ✅ Strict dimensions (170×170, 360×170, or 360×360 px — Apple HIG)
+ * ✅ Border radius (24px / rounded-3xl — matches Claritty cards)
  * ✅ Overflow hidden (prevents content escape)
  * ✅ Proper padding (16px default - Apple HIG)
- * ✅ Consistent shadow (Apple-style depth)
+ * ✅ Claritty "liquid glass" surface (translucent + blur + inset ring + hairline)
+ *
+ * The default surface is frosted glass that works on light & dark. Pass a
+ * `className` (e.g. a gradient) to override the background for a tinted widget.
+ * Note: backdrop-blur frosts content within the widget's own document — when
+ * embedded in the platform iframe it won't blur the dashboard behind it (the
+ * platform's card wrapper supplies that framing glass); the translucent + ring +
+ * hairline still give the liquid-glass look.
  *
  * @example
  * ```tsx
- * <WidgetContainer size="small" padding="default" className="bg-gradient-to-br from-blue-500 to-purple-600">
+ * <WidgetContainer size="small" padding="default">
  *   <div>Your widget content</div>
  * </WidgetContainer>
  * ```
@@ -57,10 +65,12 @@ export function WidgetContainer({
   className = '',
   onClick,
 }: WidgetContainerProps) {
-  // Enforced dimensions matching Apple iOS widget sizes
-  const dimensions: WidgetDimensions = size === 'small'
-    ? { width: '190px', height: '190px' }
-    : { width: '400px', height: '190px' };
+  // Enforced dimensions matching Apple iOS widget sizes (3-size standard).
+  // Large is 360×360 to match the Claritty dashboard grid (was 360×376).
+  const dimensions: WidgetDimensions =
+    size === 'small'  ? { width: '170px', height: '170px' } :
+    size === 'medium' ? { width: '360px', height: '170px' } :
+                        { width: '360px', height: '360px' };
 
   // Enforced padding based on Apple HIG (16pt = 16px standard)
   const paddingClass: string = {
@@ -69,22 +79,38 @@ export function WidgetContainer({
     spacious: 'p-5',  // 20px - For minimal content layouts
   }[padding];
 
+  // Claritty "liquid glass": translucent surface + blur + saturation + inset
+  // ring + soft layered shadow (mirrors the platform's .glass-card-marketplace).
+  const glass =
+    'bg-white/60 dark:bg-white/[0.05] backdrop-blur-2xl backdrop-saturate-150 ' +
+    'border border-slate-900/[0.08] dark:border-white/10 ' +
+    'ring-1 ring-inset ring-slate-900/[0.06] dark:ring-white/[0.08] ' +
+    'shadow-[0_10px_40px_-12px_rgba(0,0,0,0.15)] dark:shadow-[0_10px_40px_-12px_rgba(0,0,0,0.5)]';
+
   return (
     <div
       onClick={onClick}
+      // The host reads this to know which size the widget rendered at.
+      data-widget-size={size}
       style={{
         width: dimensions.width,
         height: dimensions.height,
         overflow: 'hidden', // Prevents content from escaping widget bounds
       }}
       className={`
-        rounded-[22px]
-        shadow-xl
+        relative
+        rounded-3xl
+        ${glass}
         ${paddingClass}
         ${onClick ? 'cursor-pointer' : ''}
         ${className}
       `.trim().replace(/\s+/g, ' ')}
     >
+      {/* Top hairline — the subtle light edge that sells the glass look. */}
+      <span
+        aria-hidden
+        className="pointer-events-none absolute inset-x-5 top-0 h-px bg-gradient-to-r from-transparent via-slate-900/20 to-transparent dark:via-white/25"
+      />
       {children}
     </div>
   );

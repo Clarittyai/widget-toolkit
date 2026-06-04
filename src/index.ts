@@ -18,5 +18,5 @@ export * from './validation';
 export * from './types';
 
 // Package version and info
-export const version = '1.0.0';
-export const name = '@claritty/widget-toolkit';
+export const version = '1.2.3';
+export const name = '@clarittyai/widget-toolkit';
