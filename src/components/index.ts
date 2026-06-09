@@ -12,3 +12,19 @@ export type { WidgetAvatarProps, WidgetAvatarGroupProps } from './WidgetAvatar';
 
 export { WidgetToggle } from './WidgetToggle';
 export type { WidgetToggleProps } from './WidgetToggle';
+
+// Aligned-by-construction layout primitives for widget CONTENT.
+export {
+  WidgetHeader,
+  WidgetMetric,
+  WidgetStat,
+  WidgetList,
+  WidgetRow,
+} from './WidgetLayout';
+export type {
+  WidgetHeaderProps,
+  WidgetMetricProps,
+  WidgetStatProps,
+  WidgetListProps,
+  WidgetRowProps,
+} from './WidgetLayout';
