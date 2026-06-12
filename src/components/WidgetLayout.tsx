@@ -26,19 +26,27 @@ import type { WidgetSize } from '../types';
  *   - stats         → a row of <WidgetStat/> (color the lead stat with tone="accent")
  */
 
-/** A small brand-accent-tinted square that holds a leading icon (the "designed"
- *  signal that lifts a widget out of plain text). Theme-driven, so it adopts the
- *  app's accent automatically. */
-function AccentChip({
+/** A small tinted square that holds a leading icon (the "designed" signal that
+ *  lifts a widget out of plain text). `accent` adopts the app's brand color — use
+ *  it for the ONE focal icon (header/hero). `neutral` is a quiet gray chip for
+ *  supporting rows, so the accent stays reserved for a single moment per widget
+ *  (Apple-style restraint), not sprinkled on every icon. */
+function IconChip({
   children,
+  tone = 'accent',
   className = '',
 }: {
   children: React.ReactNode;
+  tone?: 'accent' | 'neutral';
   className?: string;
 }) {
+  const toneClass =
+    tone === 'accent'
+      ? 'bg-accent/12 text-accent'
+      : 'bg-muted/60 text-muted-foreground';
   return (
     <div
-      className={`grid shrink-0 place-items-center rounded-xl bg-accent/12 text-accent [&>svg]:h-1/2 [&>svg]:w-1/2 ${className}`}
+      className={`grid shrink-0 place-items-center rounded-xl ${toneClass} [&>svg]:h-1/2 [&>svg]:w-1/2 ${className}`}
     >
       {children}
     </div>
@@ -68,10 +76,10 @@ export function WidgetHeader({
   return (
     <div className={`flex items-center justify-between gap-2.5 ${className}`}>
       <div className="flex min-w-0 items-center gap-2.5">
-        {icon ? <AccentChip className="h-8 w-8">{icon}</AccentChip> : null}
+        {icon ? <IconChip className="h-8 w-8">{icon}</IconChip> : null}
         <div className="min-w-0">
           {eyebrow ? (
-            <div className="truncate text-[11px] font-semibold uppercase tracking-wide text-accent">
+            <div className="truncate text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
               {eyebrow}
             </div>
           ) : null}
@@ -127,7 +135,7 @@ export function WidgetMetric({
   const deltaGlyph = dir === 'up' ? '↑' : dir === 'down' ? '↓' : '';
   return (
     <div className={`flex items-center gap-3 ${className}`}>
-      {icon ? <AccentChip className="h-11 w-11">{icon}</AccentChip> : null}
+      {icon ? <IconChip className="h-11 w-11">{icon}</IconChip> : null}
       <div className="flex min-w-0 flex-col gap-1">
         <div
           className={`${valueSize} font-bold leading-none tracking-tight tabular-nums ${valueTone}`}
@@ -212,7 +220,7 @@ export interface WidgetRowProps {
   title: string;
   /** Optional secondary line. */
   subtitle?: string;
-  /** Leading slot — an icon (boxed in a subtle accent chip) or a <WidgetAvatar>. */
+  /** Leading slot — an icon (boxed in a quiet neutral chip) or a <WidgetAvatar>. */
   leading?: React.ReactNode;
   /** Trailing slot — a value or <WidgetBadge>. */
   trailing?: React.ReactNode;
@@ -230,7 +238,9 @@ export function WidgetRow({
   return (
     <div className={`flex items-center gap-2.5 ${className}`}>
       {leading ? (
-        <AccentChip className="h-8 w-8 text-[13px]">{leading}</AccentChip>
+        <IconChip tone="neutral" className="h-8 w-8 text-[13px]">
+          {leading}
+        </IconChip>
       ) : null}
       <div className="min-w-0 flex-1">
         <div className="truncate text-sm font-medium text-foreground">

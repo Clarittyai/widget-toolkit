@@ -112,7 +112,9 @@ export function WidgetButton({
   // chip; ghost = subtle. These use the app's theme tokens (accent/foreground/
   // muted) — Claritty apps define them and scan the kit's dist in Tailwind.
   const variantClasses: Record<WidgetButtonVariant, string> = {
-    primary: 'bg-accent text-white hover:bg-accent/90 shadow-sm',
+    // Slightly translucent so the glass shows through (Apple's tinted action),
+    // not a solid wall of brand color. Reserve this as the ONE accent moment.
+    primary: 'bg-accent/90 text-white hover:bg-accent shadow-sm',
     secondary:
       'bg-white/60 dark:bg-white/[0.08] text-foreground ring-1 ring-inset ring-slate-900/[0.08] dark:ring-white/[0.12] backdrop-blur-md hover:bg-white/80 dark:hover:bg-white/[0.12]',
     ghost: 'text-foreground hover:bg-slate-900/5 dark:hover:bg-white/10',
@@ -135,9 +137,12 @@ export function WidgetButton({
     : standardSizeClasses[size];
 
   // Disabled state
+  // No press-scale (house rule: no scale animations — the bg/opacity transition
+  // is the feedback). Keeps the widget calm and avoids a clipped transform at the
+  // exact-size iframe bounds.
   const disabledClasses = disabled
     ? 'opacity-50 cursor-not-allowed pointer-events-none'
-    : 'active:scale-95 cursor-pointer';
+    : 'cursor-pointer';
 
   const handleClick = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.stopPropagation(); // Prevent parent click handlers
