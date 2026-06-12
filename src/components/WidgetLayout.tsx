@@ -8,44 +8,76 @@ import type { WidgetSize } from '../types';
  * The generated Widget.tsx composes from these instead of hand-rolling divs, so
  * the type scale, spacing rhythm, contrast, truncation and alignment are correct
  * by construction — eliminating the misaligned / inconsistent / low-contrast
- * widgets the generator used to produce. Theme-token only (text-foreground /
- * text-muted-foreground), so they inherit each app's identity.
+ * widgets the generator used to produce.
+ *
+ * Look & feel: theme-token only (text-foreground / text-muted-foreground for
+ * type, and the app's brand `accent` for garnish — icon chips, hero emphasis,
+ * delta pills), so every widget inherits its app's identity AND reads as
+ * deliberately designed rather than gray-on-glass. The accent shows up as
+ * tasteful garnish (chips, pills, an optional colored hero) — never as a wall of
+ * color — so contrast and glanceability stay intact.
  *
  * Composition recipes (pair with the design brief's widget spec + the
  * widget-design skill):
- *   - single-metric → <WidgetMetric size hero> (small); + a stat/row (medium/large)
- *   - status        → <WidgetHeader trailing={<WidgetBadge/>}/> + <WidgetMetric/>
- *   - list          → <WidgetHeader/> + <WidgetList>{<WidgetRow/>…}</WidgetList>
- *   - stats         → a row of <WidgetStat/>
+ *   - single-metric → <WidgetMetric size hero icon={<Icon/>}> (small);
+ *                      + a stat row / delta (medium/large)
+ *   - status        → <WidgetHeader icon trailing={<WidgetBadge/>}/> + <WidgetMetric/>
+ *   - list          → <WidgetHeader icon/> + <WidgetList divided>{<WidgetRow/>…}</WidgetList>
+ *   - stats         → a row of <WidgetStat/> (color the lead stat with tone="accent")
  */
+
+/** A small brand-accent-tinted square that holds a leading icon (the "designed"
+ *  signal that lifts a widget out of plain text). Theme-driven, so it adopts the
+ *  app's accent automatically. */
+function AccentChip({
+  children,
+  className = '',
+}: {
+  children: React.ReactNode;
+  className?: string;
+}) {
+  return (
+    <div
+      className={`grid shrink-0 place-items-center rounded-xl bg-accent/12 text-accent [&>svg]:h-1/2 [&>svg]:w-1/2 ${className}`}
+    >
+      {children}
+    </div>
+  );
+}
 
 export interface WidgetHeaderProps {
   /** The widget's title / what it's about (truncates). */
   title: string;
   /** Small uppercase label above the title (e.g. app or section name). */
   eyebrow?: string;
+  /** Leading icon — rendered in a brand-accent chip to the left of the title. */
+  icon?: React.ReactNode;
   /** Right-aligned slot — a <WidgetBadge> status or a single icon action. */
   trailing?: React.ReactNode;
   className?: string;
 }
 
-/** Top row: title (+ optional eyebrow) on the left, one trailing slot on the right. */
+/** Top row: optional accent icon · title (+ optional eyebrow) · one trailing slot. */
 export function WidgetHeader({
   title,
   eyebrow,
+  icon,
   trailing,
   className = '',
 }: WidgetHeaderProps) {
   return (
-    <div className={`flex items-start justify-between gap-2 ${className}`}>
-      <div className="min-w-0">
-        {eyebrow ? (
-          <div className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground truncate">
-            {eyebrow}
+    <div className={`flex items-center justify-between gap-2.5 ${className}`}>
+      <div className="flex min-w-0 items-center gap-2.5">
+        {icon ? <AccentChip className="h-8 w-8">{icon}</AccentChip> : null}
+        <div className="min-w-0">
+          {eyebrow ? (
+            <div className="truncate text-[11px] font-semibold uppercase tracking-wide text-accent">
+              {eyebrow}
+            </div>
+          ) : null}
+          <div className="truncate text-sm font-semibold text-foreground">
+            {title}
           </div>
-        ) : null}
-        <div className="text-sm font-semibold text-foreground truncate">
-          {title}
         </div>
       </div>
       {trailing ? <div className="shrink-0">{trailing}</div> : null}
@@ -54,53 +86,72 @@ export function WidgetHeader({
 }
 
 export interface WidgetMetricProps {
-  /** The hero — one big number / short status. Always high-contrast foreground. */
+  /** The hero — one big number / short status. */
   value: React.ReactNode;
   /** What it measures (the supporting label). */
   label?: string;
-  /** Optional change indicator with a semantic tone. */
+  /** Optional change indicator — renders as a tinted, semantic pill. */
   delta?: { value: string; direction?: 'up' | 'down' | 'neutral' };
+  /** Leading icon — rendered in a brand-accent chip beside the hero. */
+  icon?: React.ReactNode;
+  /**
+   * Hero tone. `accent` paints the number in the app's brand color (great for a
+   * single hero stat); `default` keeps it high-contrast foreground (best when
+   * the value sits next to other content). Defaults to foreground.
+   */
+  tone?: 'default' | 'accent';
   /** Scales the hero type to the size (small/medium share, large is bigger). */
   size?: WidgetSize;
   className?: string;
 }
 
-/** The glanceable hero: one big foreground value + a label + an optional delta. */
+/** The glanceable hero: one big value (+ optional accent icon) + label + delta pill. */
 export function WidgetMetric({
   value,
   label,
   delta,
+  icon,
+  tone = 'default',
   size = 'medium',
   className = '',
 }: WidgetMetricProps) {
   const valueSize = size === 'large' ? 'text-5xl' : 'text-4xl';
-  const deltaTone =
-    delta?.direction === 'up'
-      ? 'text-emerald-600 dark:text-emerald-400'
-      : delta?.direction === 'down'
-        ? 'text-red-600 dark:text-red-400'
-        : 'text-muted-foreground';
+  const valueTone = tone === 'accent' ? 'text-accent' : 'text-foreground';
+  const dir = delta?.direction ?? 'neutral';
+  const deltaPill =
+    dir === 'up'
+      ? 'bg-emerald-500/12 text-emerald-600 dark:text-emerald-400'
+      : dir === 'down'
+        ? 'bg-red-500/12 text-red-600 dark:text-red-400'
+        : 'bg-muted/60 text-muted-foreground';
+  const deltaGlyph = dir === 'up' ? '↑' : dir === 'down' ? '↓' : '';
   return (
-    <div className={`flex flex-col gap-1 ${className}`}>
-      <div
-        className={`${valueSize} font-bold leading-none tracking-tight text-foreground`}
-      >
-        {value}
-      </div>
-      {label || delta ? (
-        <div className="flex items-baseline gap-1.5 min-w-0">
-          {label ? (
-            <span className="text-xs text-muted-foreground truncate">
-              {label}
-            </span>
-          ) : null}
-          {delta ? (
-            <span className={`text-xs font-medium shrink-0 ${deltaTone}`}>
-              {delta.value}
-            </span>
-          ) : null}
+    <div className={`flex items-center gap-3 ${className}`}>
+      {icon ? <AccentChip className="h-11 w-11">{icon}</AccentChip> : null}
+      <div className="flex min-w-0 flex-col gap-1">
+        <div
+          className={`${valueSize} font-bold leading-none tracking-tight tabular-nums ${valueTone}`}
+        >
+          {value}
         </div>
-      ) : null}
+        {label || delta ? (
+          <div className="flex min-w-0 items-center gap-2">
+            {label ? (
+              <span className="truncate text-xs text-muted-foreground">
+                {label}
+              </span>
+            ) : null}
+            {delta ? (
+              <span
+                className={`inline-flex shrink-0 items-center gap-0.5 rounded-full px-1.5 py-0.5 text-[11px] font-semibold tabular-nums ${deltaPill}`}
+              >
+                {deltaGlyph ? <span aria-hidden>{deltaGlyph}</span> : null}
+                {delta.value}
+              </span>
+            ) : null}
+          </div>
+        ) : null}
+      </div>
     </div>
   );
 }
@@ -110,30 +161,49 @@ export interface WidgetStatProps {
   label: string;
   /** The value (foreground, medium emphasis — not the hero). */
   value: React.ReactNode;
+  /** `accent` colors the value in the brand color (use for the lead stat). */
+  tone?: 'default' | 'accent';
   className?: string;
 }
 
 /** A compact label/value unit for secondary stats (e.g. a medium/large row). */
-export function WidgetStat({ label, value, className = '' }: WidgetStatProps) {
+export function WidgetStat({
+  label,
+  value,
+  tone = 'default',
+  className = '',
+}: WidgetStatProps) {
+  const valueTone = tone === 'accent' ? 'text-accent' : 'text-foreground';
   return (
-    <div className={`flex flex-col gap-0.5 min-w-0 ${className}`}>
-      <span className="text-lg font-semibold leading-none text-foreground truncate">
+    <div className={`flex min-w-0 flex-col gap-0.5 ${className}`}>
+      <span
+        className={`truncate text-lg font-semibold leading-none tabular-nums ${valueTone}`}
+      >
         {value}
       </span>
-      <span className="text-[11px] text-muted-foreground truncate">{label}</span>
+      <span className="truncate text-[11px] text-muted-foreground">{label}</span>
     </div>
   );
 }
 
 export interface WidgetListProps {
   children: React.ReactNode;
+  /** Add hairline dividers between rows (polished look for medium/large lists). */
+  divided?: boolean;
   className?: string;
 }
 
 /** A vertical list with consistent spacing — wrap <WidgetRow> children. */
-export function WidgetList({ children, className = '' }: WidgetListProps) {
+export function WidgetList({
+  children,
+  divided = false,
+  className = '',
+}: WidgetListProps) {
+  const layout = divided
+    ? 'gap-0 divide-y divide-border/60 [&>*]:py-2 [&>*:first-child]:pt-0 [&>*:last-child]:pb-0'
+    : 'gap-2';
   return (
-    <div className={`flex flex-col gap-2 ${className}`}>{children}</div>
+    <div className={`flex flex-col ${layout} ${className}`}>{children}</div>
   );
 }
 
@@ -142,14 +212,14 @@ export interface WidgetRowProps {
   title: string;
   /** Optional secondary line. */
   subtitle?: string;
-  /** Leading slot — an icon or <WidgetAvatar>. */
+  /** Leading slot — an icon (boxed in a subtle accent chip) or a <WidgetAvatar>. */
   leading?: React.ReactNode;
   /** Trailing slot — a value or <WidgetBadge>. */
   trailing?: React.ReactNode;
   className?: string;
 }
 
-/** One aligned list row: leading icon · title/subtitle (flex) · trailing value. */
+/** One aligned list row: leading chip · title/subtitle (flex) · trailing value. */
 export function WidgetRow({
   title,
   subtitle,
@@ -158,20 +228,22 @@ export function WidgetRow({
   className = '',
 }: WidgetRowProps) {
   return (
-    <div className={`flex items-center gap-2 ${className}`}>
+    <div className={`flex items-center gap-2.5 ${className}`}>
       {leading ? (
-        <div className="shrink-0 text-muted-foreground">{leading}</div>
+        <AccentChip className="h-8 w-8 text-[13px]">{leading}</AccentChip>
       ) : null}
       <div className="min-w-0 flex-1">
-        <div className="text-sm text-foreground truncate">{title}</div>
+        <div className="truncate text-sm font-medium text-foreground">
+          {title}
+        </div>
         {subtitle ? (
-          <div className="text-xs text-muted-foreground truncate">
+          <div className="truncate text-xs text-muted-foreground">
             {subtitle}
           </div>
         ) : null}
       </div>
       {trailing ? (
-        <div className="shrink-0 text-sm font-medium text-foreground">
+        <div className="shrink-0 text-sm font-semibold tabular-nums text-foreground">
           {trailing}
         </div>
       ) : null}

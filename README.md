@@ -67,7 +67,7 @@ import {
   widgetGradients
 } from '@clarittyai/widget-toolkit';
 
-export default function MyWidget({ size = 'large' }: { size: 'small' | 'large' }) {
+export default function MyWidget({ size = 'medium' }: { size: 'small' | 'medium' | 'large' }) {
   return (
     <WidgetContainer
       size={size}
@@ -117,7 +117,7 @@ Enforces strict dimensions, padding, border radius, and overflow.
 
 ```tsx
 <WidgetContainer
-  size="small" | "large"
+  size="small" | "medium" | "large"
   padding="default" | "compact" | "spacious"
   className="your-gradient-classes"
 >
