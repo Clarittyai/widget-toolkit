@@ -100,8 +100,9 @@ export function WidgetButton({
 }: WidgetButtonProps) {
   const isCircular = shape === 'circular';
 
-  // Shape classes - rounded rectangle vs perfect circle
-  const shapeClasses = isCircular ? 'rounded-full' : 'rounded-lg';
+  // Shape classes — every button is a PILL (rounded-full); a circular button is
+  // just a square pill (= perfect circle). No squared/rounded-lg buttons.
+  const shapeClasses = 'rounded-full';
 
   // Base classes enforce 44px minimum touch target (Apple HIG requirement)
   const baseClasses = `min-h-[44px] min-w-[44px] ${shapeClasses} font-medium transition-all duration-200 flex items-center justify-center gap-1.5`;
