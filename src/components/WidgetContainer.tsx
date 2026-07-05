@@ -79,10 +79,15 @@ export function WidgetContainer({
     spacious: 'p-5',  // 20px - For minimal content layouts
   }[padding];
 
-  // Claritty "liquid glass": translucent surface + blur + saturation + inset
-  // ring + soft layered shadow (mirrors the platform's .glass-card-marketplace).
+  // Claritty "liquid glass": translucent tints + inset ring + soft layered
+  // shadow (mirrors the platform's .glass-card-marketplace). Deliberately NO
+  // backdrop-filter: inside the widget iframe it can only sample the widget's
+  // own (transparent) document — it frosts nothing, and Chromium's blur
+  // tiling over an undefined backdrop paints a vertical seam through the
+  // tile while widgets load. The translucent tints alone let the host card
+  // show through, which is the entire glass effect an iframe can have.
   const glass =
-    'bg-white/60 dark:bg-white/[0.05] backdrop-blur-2xl backdrop-saturate-150 ' +
+    'bg-white/60 dark:bg-white/[0.05] ' +
     'border border-slate-900/[0.08] dark:border-white/10 ' +
     'ring-1 ring-inset ring-slate-900/[0.06] dark:ring-white/[0.08] ' +
     'shadow-[0_10px_40px_-12px_rgba(0,0,0,0.15)] dark:shadow-[0_10px_40px_-12px_rgba(0,0,0,0.5)]';

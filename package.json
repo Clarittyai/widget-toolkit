@@ -1,6 +1,6 @@
 {
   "name": "@clarittyai/widget-toolkit",
-  "version": "1.6.1",
+  "version": "1.6.2",
   "description": "Apple-compliant widget toolkit for Clarity Platform - enforces iOS Human Interface Guidelines",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
